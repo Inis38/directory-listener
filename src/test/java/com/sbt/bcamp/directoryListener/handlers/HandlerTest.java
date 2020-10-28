@@ -80,4 +80,27 @@ public class HandlerTest {
         Assert.assertTrue(message2.contains("Колличество строк: 5"));
     }
 
+    @Test
+    public void deleteHandlerTest() {
+        Logger logger = Logger.getLogger(DeleteHandler.class);
+        logger.addAppender(mockAppender);
+
+        File folder = new File(Main.FOLDER_NAME);
+        folder.mkdir();
+        String fileName = "deleteTest.txt";
+
+        Path path = fileTest.createFile(fileName);
+        DeleteHandler deleteHandler = new DeleteHandler();
+        deleteHandler.set(path);
+        deleteHandler.run();
+
+        ArgumentCaptor<LoggingEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
+        verify(mockAppender, times(1)).doAppend(eventArgumentCaptor.capture());
+
+        String message = eventArgumentCaptor.getAllValues().get(0).getMessage().toString();
+
+        Assert.assertTrue(message.contains(fileName));
+        Assert.assertTrue(message.contains("удаляем"));
+    }
+
 }

@@ -3,6 +3,7 @@ package com.sbt.bcamp.directoryListener.handlers;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JsonHandler extends AbstractHandler {
@@ -20,12 +21,8 @@ public class JsonHandler extends AbstractHandler {
 
         logger.info("Обработка файла '" + path.getFileName().toString() + "' начата в " + getStartTime(start));
 
-        try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(path.toFile()))) {
-            while (lineNumberReader.readLine() != null) {
-                lineNumber++;
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        try {
+            lineNumber = Files.readAllLines(path).size();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -4,6 +4,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -15,9 +16,7 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileDistributorTest {
@@ -25,20 +24,26 @@ public class FileDistributorTest {
     @Mock
     Appender mockAppender;
 
+    Logger logger;
+
     FileTest fileTest = new FileTest();
 
-    @Test
-    public void xmlFileDistributorTest() throws InterruptedException, IOException {
-
-        Logger logger = Logger.getLogger(FileDistributor.class);
+    @Before
+    public void before() {
+        logger = Logger.getLogger(FileDistributor.class);
         logger.addAppender(mockAppender);
 
         File folder = new File(Main.FOLDER_NAME);
         folder.mkdir();
+    }
+
+    @Test
+    public void xmlFileDistributorTest() throws InterruptedException, IOException {
+
         String fileName = "test.xml";
 
         Path path = fileTest.createFile(fileName);
-        FileDistributor fileDistributor = new FileDistributor(path);
+        new FileDistributor(path);
         Thread.sleep(1000);
 
         ArgumentCaptor<LoggingEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
@@ -55,15 +60,10 @@ public class FileDistributorTest {
     @Test
     public void jsonFileDistributorTest() throws InterruptedException, IOException {
 
-        Logger logger = Logger.getLogger(FileDistributor.class);
-        logger.addAppender(mockAppender);
-
-        File folder = new File(Main.FOLDER_NAME);
-        folder.mkdir();
         String fileName = "test.json";
 
         Path path = fileTest.createFile(fileName);
-        FileDistributor fileDistributor = new FileDistributor(path);
+        new FileDistributor(path);
         Thread.sleep(1000);
 
         ArgumentCaptor<LoggingEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
@@ -78,28 +78,20 @@ public class FileDistributorTest {
     }
 
     @Test
-    public void txtFileDistributorTest() throws InterruptedException, IOException {
+    public void txtFileDistributorTest() throws InterruptedException {
 
-        Logger logger = Logger.getLogger(FileDistributor.class);
-        logger.addAppender(mockAppender);
-
-        File folder = new File(Main.FOLDER_NAME);
-        folder.mkdir();
         String fileName = "test.txt";
 
         Path path = fileTest.createFile(fileName);
-        FileDistributor fileDistributor = new FileDistributor(path);
+        new FileDistributor(path);
         Thread.sleep(1000);
 
         ArgumentCaptor<LoggingEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
-        verify(mockAppender, times(2)).doAppend(eventArgumentCaptor.capture());
+        verify(mockAppender, times(1)).doAppend(eventArgumentCaptor.capture());
 
         String message = eventArgumentCaptor.getAllValues().get(0).getMessage().toString();
-        String message2 = eventArgumentCaptor.getAllValues().get(1).getMessage().toString();
 
         Assert.assertTrue(message.contains(fileName));
         Assert.assertTrue(message.contains("расширение 'txt'"));
-        Assert.assertTrue(message2.contains("удаляем"));
     }
-
 }
